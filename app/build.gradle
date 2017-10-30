@@ -31,4 +31,6 @@ dependencies {
 
     compile 'com.jakewharton:butterknife:8.6.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
+
+    compile 'com.gelitenight.waveview:waveview:1.0.0'
 }

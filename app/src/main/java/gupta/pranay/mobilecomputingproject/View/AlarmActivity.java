@@ -1,4 +1,4 @@
-package gupta.pranay.mobilecomputingproject;
+package gupta.pranay.mobilecomputingproject.View;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -22,8 +22,9 @@ import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import gupta.pranay.mobilecomputingproject.R;
 
-public class MainActivity extends AppCompatActivity {
+public class AlarmActivity extends BaseActivity {
 
     private static final String TAG = "TAG";
     private static final int AUDIO_RESPONSE_CONSTANT = 112;
@@ -75,14 +76,19 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean checkForPermissions() {
 
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) !=
-                PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_RESPONSE_CONSTANT);
-            return false ;
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) !=
+                    PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_RESPONSE_CONSTANT);
+                return false ;
+            }else {
+                return true ;
+            }
         }else {
             return true ;
         }
+
+
 
     }
 
@@ -172,5 +178,11 @@ public class MainActivity extends AppCompatActivity {
         else
             return 0;
 
+    }
+
+    @Override
+    protected void onPause() {
+        mRecorder.release();
+        super.onPause();
     }
 }

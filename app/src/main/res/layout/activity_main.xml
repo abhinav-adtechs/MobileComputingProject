@@ -2,15 +2,16 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/colorBlueBase"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="gupta.pranay.mobilecomputingproject.MainActivity">
+    tools:context="gupta.pranay.mobilecomputingproject.View.AlarmActivity">
 
     <TextView
         android:id="@+id/activity_main_tv_btn_state"
         android:text="State: Unpressed"
+        android:textColor="@color/colorYellowBase"
         android:textSize="30dp"
-        android:fontFamily="sans-serif"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
@@ -38,6 +39,7 @@
     <TextView
         android:id="@+id/activity_main_tv_db"
         android:textSize="20sp"
+        android:textColor="@color/colorYellowBase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="~ 0 db"
