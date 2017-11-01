@@ -3,22 +3,28 @@ package gupta.pranay.mobilecomputingproject.View;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.media.AudioAttributes;
 import android.media.MediaRecorder;
 import android.os.Build;
-import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.io.IOException;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 
-import be.tarsos.dsp.io.TarsosDSPAudioFormat;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -39,15 +45,76 @@ public class AlarmActivity extends BaseActivity {
     @BindView(R.id.activity_main_tv_db)
     TextView tvLoudness ;
 
-    private boolean btnState = false ;
+    @BindView(R.id.activity_main_chart)
+    LineChart lineChart ;
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private List<Entry> entryList = new ArrayList<>() ;
+    private LineDataSet dataSet ;
+    private LineData lineData ;
+
+    private boolean btnState = false ;
+    int i = 0 ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this) ;
+
+        setupChart() ;
+    }
+
+    private void setupChart() {
+
+        entryList.add(new Entry(1, 1)) ;
+
+        lineChart.setVisibility(View.INVISIBLE);
+
+        dataSet = new LineDataSet(entryList, "Label");
+        dataSet.setValueTextSize(0);
+        dataSet.setCircleRadius(0);
+        dataSet.setCircleColor(getResources().getColor(R.color.colorYellowBase));
+        dataSet.setColor(getResources().getColor(R.color.colorYellowBase));
+        dataSet.setValueTextColor(getResources().getColor(R.color.colorPeachLow));
+
+        lineData = new LineData(dataSet);
+
+        Description description = new Description() ;
+        description.setText("");
+
+        lineChart.setDescription(description);
+        lineChart.setData(lineData);
+
+        lineChart.setDrawGridBackground(false);
+        lineChart.setDrawBorders(false);
+        lineChart.setTouchEnabled(false);
+        lineChart.getAxisLeft().setDrawGridLines(false);
+        lineChart.getXAxis().setDrawGridLines(false);
+        lineChart.getAxisRight().setDrawGridLines(false);
+        lineChart.getAxisLeft().setEnabled(false);
+        lineChart.getAxisRight().setEnabled(false);
+
+
+        lineChart.getAxisLeft().setAxisMaximum(50);
+        lineChart.getAxisLeft().setAxisMinimum(0);
+        lineChart.setAutoScaleMinMaxEnabled(true);
+        lineChart.getLegend().setEnabled(false);
+        dataSet.setHighlightEnabled(false);
+        dataSet.setDrawHighlightIndicators(false);
+
+        lineChart.getXAxis().setEnabled(false);
+
+
+
+        YAxis yAxis = new YAxis() ;
+        yAxis.setEnabled(false);
+
+        lineChart.getAxis(yAxis.getAxisDependency()).setDrawGridLines(false);
+
+
+
+        lineChart.invalidate();
     }
 
     @OnClick(R.id.btn_start_recording)
@@ -55,6 +122,7 @@ public class AlarmActivity extends BaseActivity {
 
         if (checkForPermissions()){
             if (!btnState){
+                lineChart.setVisibility(View.VISIBLE);
                 btnState = true;
                 try{
                     start();
@@ -128,6 +196,15 @@ public class AlarmActivity extends BaseActivity {
                                     new Runnable() {
                                         @Override
                                         public void run() {
+                                            dataSet.addEntry(new Entry(i++, (float)(-20 * Math.log10(ampli / 32767.0)))) ;
+
+                                            lineChart.setVisibleXRangeMaximum(15);
+                                            lineChart.moveViewToX(lineData.getXMax() - 16);
+
+                                            lineData.notifyDataChanged() ;
+                                            lineChart.notifyDataSetChanged();
+                                            lineChart.invalidate();
+
                                             if(getAmplitude() > 0)
                                                 tvLoudness.setText("~ " + (20 * Math.log10(ampli / 32767.0)) + " db");
                                         }
@@ -137,7 +214,7 @@ public class AlarmActivity extends BaseActivity {
                             Log.i(TAG, "run: " + (20 * Math.log10(ampli / 32767.0)) + "    : RAW: " + ampli);
 
                             try {
-                                Thread.sleep(700);
+                                Thread.sleep(400);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -182,7 +259,8 @@ public class AlarmActivity extends BaseActivity {
 
     @Override
     protected void onPause() {
-        mRecorder.release();
+        if (mRecorder != null)
+            mRecorder.release();
         super.onPause();
     }
 }
